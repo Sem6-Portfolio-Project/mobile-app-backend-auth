@@ -1,8 +1,14 @@
+import { Request, Response} from "express";
 
 export class AuthController {
 
     // TODO
-    login= async () => {}
+    login= async (req: Request, res: Response) => {
+        const { email, password} = req.body;
+
+
+
+    }
 
     // TODO
     logout = async () => {}
