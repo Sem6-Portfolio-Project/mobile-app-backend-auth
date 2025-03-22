@@ -42,7 +42,6 @@ export class CognitoService extends AwsService{
         password: string,
         userAttributes: AttributeType[],
     ): Promise<SignUpCommandOutput> => {
-        logger.debug('Executing the user signup');
         return this.executeCommand(
             new SignUpCommand({
                 ClientId: CLIENT_ID,
@@ -63,7 +62,6 @@ export class CognitoService extends AwsService{
         username: string,
         confirmationCode: string
     ): Promise<ConfirmSignUpCommandOutput> => {
-        logger.debug('Executing the user signup confirmation');
         return this.executeCommand(
             new ConfirmSignUpCommand({
                 ClientId: CLIENT_ID,
@@ -81,7 +79,6 @@ export class CognitoService extends AwsService{
     resendConfirmationCode = (
         username: string
     ): Promise<ResendConfirmationCodeCommandOutput> => {
-        logger.debug('Executing the resend confirmation code');
         return this.executeCommand(
             new ResendConfirmationCodeCommand({
                 ClientId: CLIENT_ID,
@@ -98,7 +95,6 @@ export class CognitoService extends AwsService{
     forgotPassword = (
         username: string
     ): Promise<ForgotPasswordCommandOutput> => {
-        logger.debug('Executing the user forgot password');
         return this.executeCommand(
             new ForgotPasswordCommand({
                 ClientId: CLIENT_ID,
@@ -120,7 +116,6 @@ export class CognitoService extends AwsService{
         confirmationCode: string,
         newPassword: string
     ): Promise<ConfirmForgotPasswordCommandOutput> => {
-        logger.debug('Executing the user confirm forgot password');
         return this.executeCommand(
             new ConfirmForgotPasswordCommand({
                 ClientId: CLIENT_ID,
@@ -141,7 +136,6 @@ export class CognitoService extends AwsService{
         username: string,
         password: string,
     ): Promise<AuthenticationResultType> => {
-        logger.debug('Executing the user login');
         const response =  this.executeCommand(
              new InitiateAuthCommand({
                  AuthFlow: "USER_PASSWORD_AUTH",
