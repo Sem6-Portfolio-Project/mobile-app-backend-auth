@@ -11,5 +11,5 @@ export interface IUserInfo {
     email: string;
     password: string;
     role: string;
-    userGroup: string;
+    userGroup?: string;
 }

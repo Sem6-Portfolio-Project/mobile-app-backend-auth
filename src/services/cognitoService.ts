@@ -4,6 +4,8 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider/dist-types/models/models_0.js'
 import { createLogger, CustomLogger } from "../helpers/lib/logger";
 import {
+    AdminAddUserToGroupCommand,
+    AdminAddUserToGroupCommandOutput,
     CognitoIdentityProviderClient,
     ConfirmForgotPasswordCommand,
     ConfirmForgotPasswordCommandOutput,
@@ -18,7 +20,7 @@ import {
     SignUpCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { AwsService } from "./awsService";
-import { CLIENT_ID } from "../constants";
+import { CLIENT_ID,POOL_ID } from "../constants";
 import {
     AuthenticationResultType
 } from "@aws-sdk/client-cognito-identity-provider/dist-types/models";
@@ -124,6 +126,20 @@ export class CognitoService extends AwsService{
                 Password: newPassword
             }),
             "ConfirmForgotPasswordCommand"
+        );
+    };
+
+    addUserToGroup = (
+        username: string,
+        groupName: string
+    ): Promise<AdminAddUserToGroupCommandOutput> => {
+        return this.executeCommand(
+            new AdminAddUserToGroupCommand({
+                UserPoolId: POOL_ID,
+                Username: username,
+                GroupName: groupName
+            }),
+            "AdminAddUserToGroupCommand"
         );
     };
 
