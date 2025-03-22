@@ -16,7 +16,7 @@ export class AuthRouter extends BaseRouter {
 
         this.router.post('/logout',this.authController.logout);
 
-        this.router.post('/register',this.authController.register);
+        this.router.post('/register',this.authController.signUp);
 
         this.router.post('/register',this.authController.confirmSignUp);
 
