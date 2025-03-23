@@ -17,7 +17,7 @@ export const customResponse = (
     res: Response,
     status: number,
     body: IResponseBody
-) => {
+): Response => {
     return res.status(status).send(
         safeParser<IResponseBody>({
             ...body,

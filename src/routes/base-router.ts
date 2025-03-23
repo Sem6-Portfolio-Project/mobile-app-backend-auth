@@ -10,7 +10,7 @@ export abstract class BaseRouter {
 
     protected abstract initRoutes: () => void;
 
-    public getRoutes = () =>{
+    public getRoutes = (): Router =>{
         if(!this.routesInitialized){
             this.initRoutes();
             this.routesInitialized = true;

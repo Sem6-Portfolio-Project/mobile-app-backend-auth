@@ -5,7 +5,7 @@ import {
 import { createLogger, CustomLogger } from "../helpers/lib/logger";
 import {
     AdminAddUserToGroupCommand,
-    AdminAddUserToGroupCommandOutput,
+    AdminAddUserToGroupCommandOutput, AdminUserGlobalSignOutCommand, AdminUserGlobalSignOutCommandOutput,
     CognitoIdentityProviderClient,
     ConfirmForgotPasswordCommand,
     ConfirmForgotPasswordCommandOutput,
@@ -129,6 +129,11 @@ export class CognitoService extends AwsService{
         );
     };
 
+    /**
+     * add user to user group
+     * @param username
+     * @param groupName
+     */
     addUserToGroup = (
         username: string,
         groupName: string
@@ -171,4 +176,16 @@ export class CognitoService extends AwsService{
 
         return AuthenticationResult;
     };
+
+    logout = async (
+        username: string
+    ): Promise<AdminUserGlobalSignOutCommandOutput> => {
+        return this.executeCommand(
+            new AdminUserGlobalSignOutCommand({
+                UserPoolId: POOL_ID,
+                Username: username
+            }),
+            "AdminUserGlobalSignOutCommand"
+        );
+    }
 }

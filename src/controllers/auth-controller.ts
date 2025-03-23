@@ -1,10 +1,19 @@
-import { Request, Response} from "express";
-import { createLogger, CustomLogger } from "../helpers/lib/logger";
+import { Request, Response } from "express";
+import {
+    createLogger,
+    CustomLogger
+} from "../helpers/lib/logger";
 import { IUserInfo } from "../types/user";
-import { AttributeType } from "@aws-sdk/client-cognito-identity-provider/dist-types/models/models_0.js";
+import {
+    AttributeType
+} from "@aws-sdk/client-cognito-identity-provider/dist-types/models/models_0.js";
 import { USER_POOL_ATTRIBUTES } from "../constants";
 import { CognitoService } from "../services/cognitoService";
-import { pendingConfirmationResponse, failureResponse, successResponse } from "../helpers/lib/response";
+import {
+    pendingConfirmationResponse,
+    failureResponse,
+    successResponse
+} from "../helpers/lib/response";
 
 
 const logger : CustomLogger = createLogger({ fileName: "AuthController"});
@@ -15,31 +24,73 @@ export class AuthController {
         private cognitoService: CognitoService,
     ) {}
 
-    // TODO
-    login= async (req: Request, res: Response) => {
+    /**
+     * user login
+     * @param req
+     * @param res
+     */
+    login = async (req: Request, res: Response): Promise<void> => {
         const { email, password} = req.body;
 
         try {
             logger.debug("User login attempt with email: %s ",email);
 
+            const data = await this.cognitoService.login(
+                email,
+                password
+            );
+
+            logger.debug("Successfully logged with email: %s ",email);
+            successResponse({
+                res,
+                body: {
+                    data: data,
+                    message: "Successfully logged."
+                }
+            });
         } catch (e) {
-
+            failureResponse({
+                res,
+                body: {
+                    message: "Error happened while logging."
+                }
+            });
         }
-
-
-
-
     }
 
-    // TODO
-    logout = async () => {}
+    /**
+     * user log out
+     * @param req
+     * @param res
+     */
+    logout = async (req: Request, res:Response): Promise<void> => {
+        const { email } = req.body;
+
+        try {
+            await this.cognitoService.logout(email);
+            logger.debug("Successfully logged out from all devices.");
+            successResponse({
+                res,
+                body: {
+                    message: "Successfully logged out from all devices."
+                }
+            });
+        } catch (e) {
+            failureResponse({
+                res,
+                body: {
+                    message: "Error happened while logging out."
+                }
+            });
+        }
+    }
 
     /**
     * signup a user
     * @param req - contains (email, password, role)
     * @param res
     */
-    signUp  = async (req: Request, res: Response) => {
+    signUp  = async (req: Request, res: Response): Promise<void> => {
         const {email, password} = req.body;
         logger.debug("Registering a new user with request body: %s",req.body);
 
@@ -54,11 +105,11 @@ export class AuthController {
 
             if(!data.UserConfirmed) {
                 logger.debug(
-                        "User not confirmed.Confirmation code sent to %s",
-                        data?.CodeDeliveryDetails?.Destination
+                    "User not confirmed.Confirmation code sent to %s",
+                    data?.CodeDeliveryDetails?.Destination
                 );
 
-                return pendingConfirmationResponse({
+                 pendingConfirmationResponse({
                     res,
                     body: {
                         data: data,
@@ -66,10 +117,17 @@ export class AuthController {
                     }
 
                 });
+            } else if (data.UserConfirmed) {
+                 successResponse({
+                    res,
+                    body: {
+                        data: data,
+                        message: "Successfully signup."
+                    }
+                });
             }
-
         } catch (e) {
-            return failureResponse({
+             failureResponse({
                 res,
                 body: {
                     message: "Error happened while user signup process."
@@ -78,11 +136,15 @@ export class AuthController {
         }
     }
 
-    // TODO
-    confirmSignUp = async (req: Request, res: Response) => {
+    /**
+     * user confirmation by confirmation code
+     * @param req
+     * @param res
+     */
+    confirmSignUp = async (req: Request, res: Response): Promise<void> => {
         const { email, confirmationCode, userGroup } = req.body;
 
-        logger.debug("Confirming user signup with req body: %s",req.body);
+        logger.debug("Confirming user by confirmation code");
 
         try {
             const data = await this.cognitoService.signUpConfirmation(
@@ -94,7 +156,7 @@ export class AuthController {
             await this.cognitoService.addUserToGroup(email,userGroup);
             logger.debug("Successfully added to the user group : %s",userGroup);
 
-            return successResponse({
+            successResponse({
                 res,
                 body: {
                     data: data,
@@ -103,7 +165,7 @@ export class AuthController {
 
             })
         } catch (e) {
-            return failureResponse({
+            failureResponse({
                 res,
                 body: {
                     message: "Error happened while signup confirmation process."
@@ -114,14 +176,132 @@ export class AuthController {
 
     }
 
-    // TODO
-    resendConfirmationCode = async () => {}
+    /**
+     * resending the confirmation code
+     * @param req
+     * @param res
+     */
+    resendConfirmationCode = async (req: Request, res: Response): Promise<void> => {
+        const { email } = req.body;
 
-    // TODO
-    forgotPassword = async () => {}
+        logger.debug("Sending the confirmation code.");
+        try {
+            const data = await this.cognitoService.resendConfirmationCode(email);
+
+            if (data?.CodeDeliveryDetails?.Destination) {
+                logger.debug(
+                    "Successfully sent the confirmation code to %s",data?.CodeDeliveryDetails?.Destination
+                );
+                successResponse({
+                    res,
+                    body: {
+                        data: data.CodeDeliveryDetails,
+                        message: "Successfully sent confirmation code."
+                    }
+                });
+            } else {
+                failureResponse({
+                    res,
+                    status: 400,
+                    body: {
+                        message: "Failed to send confirmation code. Please check the provided email."
+                    }
+                });
+            }
+        } catch (e) {
+            failureResponse({
+                res,
+                body: {
+                    message: "Error happened while sending confirmation code."
+                }
+            });
+        }
+
+    }
+
+    /**
+     * forgot password
+     * @param req
+     * @param res
+     */
+    forgotPassword = async (req: Request, res: Response): Promise<void> => {
+       const { email } = req.body;
+
+       logger.debug("Sending the confirmation code for reset password.");
+
+       try {
+          const data= await this.cognitoService.forgotPassword(email);
+
+          if (data?.CodeDeliveryDetails?.Destination) {
+              logger.debug(
+                  "Successfully sent confirmation code to %s for reset password."
+                  ,data.CodeDeliveryDetails.Destination
+              );
+
+              successResponse({
+                  res,
+                  body: {
+                      data: data.CodeDeliveryDetails,
+                      message: "Successfully sent confirmation code for reset password."
+                  }
+              });
+          } else {
+              failureResponse({
+                  res,
+                  status: 400,
+                  body: {
+                      message: "Failed to send confirmation code. Please check the provided email."
+                  }
+              });
+          }
+       } catch (e) {
+           failureResponse({
+              res,
+              body: {
+                  message: "Error happened while sending confirmation code for reset password."
+              }
+           });
+       }
+
+    }
+
+    /**
+     * confirming forgot password
+     * @param req
+     * @param res
+     */
+    confirmForgotPassword = async (req: Request,res: Response): Promise<void> => {
+        const { email, confirmationCode, newPassword } = req.body;
+
+        logger.debug("Confirming reset password.");
+
+        try {
+            await this.cognitoService.confirmForgotPassword(
+                email,
+                confirmationCode,
+                newPassword
+            );
+            logger.debug("Successfully reset the password.");
+            successResponse({
+                res,
+                body: {
+                    message: "Successfully reset the password"
+                }
+            });
+        } catch (e) {
+            failureResponse({
+                res,
+                body: {
+                    message: "Error happened while resetting password."
+                }
+            });
+        }
+
+
+    }
 
     //TODO
-    refreshSession = async () => {}
+    refreshSession = async (): Promise<void> => {}
 
     getAttributes = (
         userInfo: IUserInfo

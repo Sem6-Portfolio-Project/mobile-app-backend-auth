@@ -5,7 +5,7 @@ import { AuthController } from "../controllers/auth-controller";
 export class AuthRouter extends BaseRouter {
 
     constructor(
-            private authController: AuthController
+        private authController: AuthController
     ) {
         super();
     }
@@ -23,6 +23,8 @@ export class AuthRouter extends BaseRouter {
         this.router.post('/resend-code',this.authController.resendConfirmationCode);
 
         this.router.post("/forgot-password", this.authController.forgotPassword);
+
+        this.router.post("/forgot-password-confirm", this.authController.confirmForgotPassword);
 
         this.router.post("/refresh-session", this.authController.refreshSession);
     }
