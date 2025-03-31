@@ -2,8 +2,7 @@ import cors from 'cors';
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import express, { Express, Request } from "express";
-
-const BASE_URLS: string[] = []
+import { BASE_URLS } from "../../constants.js";
 
 export const getApp = (): Express => {
     const app: Express = express();

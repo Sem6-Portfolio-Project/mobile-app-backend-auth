@@ -2,22 +2,24 @@ import { Request, Response } from "express";
 import {
     createLogger,
     CustomLogger
-} from "../helpers/lib/logger";
-import { IUserInfo } from "../types/user";
+} from "../helpers/lib/logger.js";
+import { IUserInfo } from "../types/user.js";
 import {
     AttributeType
 } from "@aws-sdk/client-cognito-identity-provider/dist-types/models/models_0.js";
-import { USER_POOL_ATTRIBUTES } from "../constants";
-import { CognitoService } from "../services/cognitoService";
+import { USER_POOL_ATTRIBUTES } from "../constants.js";
+import { CognitoService } from "../services/cognitoService.js";
 import {
     pendingConfirmationResponse,
     failureResponse,
     successResponse
-} from "../helpers/lib/response";
+} from "../helpers/lib/response.js";
+import { injectable } from "tsyringe";
 
 
 const logger : CustomLogger = createLogger({ fileName: "AuthController"});
 
+@injectable()
 export class AuthController {
 
     constructor(
@@ -40,14 +42,25 @@ export class AuthController {
                 password
             );
 
-            logger.debug("Successfully logged with email: %s ",email);
-            successResponse({
-                res,
-                body: {
-                    data: data,
-                    message: "Successfully logged."
-                }
-            });
+            logger.debug("Successfully logged.results: %s ",JSON.stringify(data));
+            if (data) {
+                successResponse({
+                    res,
+                    body: {
+                        data: data,
+                        message: "Successfully logged."
+                    }
+                });
+            } else {
+                failureResponse({
+                    res,
+                    status: 400,
+                    body: {
+                        message: "Something went wrong.Please try again later."
+                    }
+                })
+            }
+
         } catch (e) {
             failureResponse({
                 res,
@@ -64,10 +77,10 @@ export class AuthController {
      * @param res
      */
     logout = async (req: Request, res:Response): Promise<void> => {
-        const { email } = req.body;
+        const { accessToken } = req.body;
 
         try {
-            await this.cognitoService.logout(email);
+            await this.cognitoService.logout(accessToken);
             logger.debug("Successfully logged out from all devices.");
             successResponse({
                 res,
@@ -76,6 +89,7 @@ export class AuthController {
                 }
             });
         } catch (e) {
+            logger.debug("logout error : %s",e);
             failureResponse({
                 res,
                 body: {
@@ -95,14 +109,15 @@ export class AuthController {
         logger.debug("Registering a new user with request body: %s",req.body);
 
         try {
+            logger.debug("before the create user attributes")
             const userAttributes: AttributeType[] = this.getAttributes(req.body);
-
+            logger.debug("after the create user attributes, %s", JSON.stringify(userAttributes))
             const data = await this.cognitoService.signUp(
                 email,
                 password,
                 userAttributes
             );
-
+            logger.debug("after getting data ,%s",data)
             if(!data.UserConfirmed) {
                 logger.debug(
                     "User not confirmed.Confirmation code sent to %s",
@@ -127,6 +142,7 @@ export class AuthController {
                 });
             }
         } catch (e) {
+            logger.debug("errror: %s",e)
              failureResponse({
                 res,
                 body: {
@@ -188,6 +204,7 @@ export class AuthController {
         try {
             const data = await this.cognitoService.resendConfirmationCode(email);
 
+            logger.debug("response data : %s",JSON.stringify(data))
             if (data?.CodeDeliveryDetails?.Destination) {
                 logger.debug(
                     "Successfully sent the confirmation code to %s",data?.CodeDeliveryDetails?.Destination
@@ -209,6 +226,7 @@ export class AuthController {
                 });
             }
         } catch (e) {
+            logger.debug("error: %s",e);
             failureResponse({
                 res,
                 body: {
@@ -308,8 +326,8 @@ export class AuthController {
     ): AttributeType[] => {
         return [
             {Name: USER_POOL_ATTRIBUTES.EMAIL ,Value: userInfo.email},
-            {Name: USER_POOL_ATTRIBUTES.USER_ROLE ,Value: userInfo.role},
-            {Name: USER_POOL_ATTRIBUTES.USER_GROUP ,Value: userInfo.userGroup},
+            // {Name: USER_POOL_ATTRIBUTES.USER_ROLE ,Value: userInfo.role},
+            // {Name: USER_POOL_ATTRIBUTES.USER_GROUP ,Value: userInfo.userGroup},
         ];
     };
 }

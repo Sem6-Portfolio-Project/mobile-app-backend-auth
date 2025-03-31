@@ -1,8 +1,9 @@
+import "reflect-metadata";
 import { Express } from "express";
 import { container } from "tsyringe";
 import serverless from "serverless-http";
-import { getApp } from "../../helpers/lib/auth";
-import { AuthRouter } from "../../routes/auth-router";
+import { getApp } from "../../helpers/lib/auth.js";
+import { AuthRouter } from "../../routes/auth-router.js";
 import {
     APIGatewayProxyEvent,
     APIGatewayProxyHandler,

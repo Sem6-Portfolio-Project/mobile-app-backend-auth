@@ -2,7 +2,7 @@
 import {
     AttributeType
 } from '@aws-sdk/client-cognito-identity-provider/dist-types/models/models_0.js'
-import { createLogger, CustomLogger } from "../helpers/lib/logger";
+import { createLogger, CustomLogger } from "../helpers/lib/logger.js";
 import {
     AdminAddUserToGroupCommand,
     AdminAddUserToGroupCommandOutput, AdminUserGlobalSignOutCommand, AdminUserGlobalSignOutCommandOutput,
@@ -12,18 +12,17 @@ import {
     ConfirmSignUpCommand,
     ConfirmSignUpCommandOutput,
     ForgotPasswordCommand,
-    ForgotPasswordCommandOutput,
+    ForgotPasswordCommandOutput, GlobalSignOutCommand,
     InitiateAuthCommand,
     ResendConfirmationCodeCommand,
     ResendConfirmationCodeCommandOutput,
     SignUpCommand,
     SignUpCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { AwsService } from "./awsService";
-import { CLIENT_ID,POOL_ID } from "../constants";
-import {
-    AuthenticationResultType
-} from "@aws-sdk/client-cognito-identity-provider/dist-types/models";
+import { AwsService } from "./awsService.js";
+import { CLIENT_ID,POOL_ID } from "../constants.js";
+import { AuthenticationResultType } from "aws-sdk/clients/cognitoidentityserviceprovider.js";
+
 
 const logger: CustomLogger = createLogger({ fileName: "CognitoService" });
 
@@ -42,7 +41,7 @@ export class CognitoService extends AwsService{
     signUp = (
         username: string,
         password: string,
-        userAttributes: AttributeType[],
+        userAttributes?: AttributeType[],
     ): Promise<SignUpCommandOutput> => {
         return this.executeCommand(
             new SignUpCommand({
@@ -157,7 +156,7 @@ export class CognitoService extends AwsService{
         username: string,
         password: string,
     ): Promise<AuthenticationResultType> => {
-        const response =  this.executeCommand(
+        const response = await this.executeCommand(
              new InitiateAuthCommand({
                  AuthFlow: "USER_PASSWORD_AUTH",
                  ClientId: CLIENT_ID,
@@ -173,19 +172,17 @@ export class CognitoService extends AwsService{
             logger.debug('ChallengeName: %s',ChallengeName);
             //TODO: if need in future, implement this
         }
-
         return AuthenticationResult;
     };
 
     logout = async (
-        username: string
+        accessToken: string
     ): Promise<AdminUserGlobalSignOutCommandOutput> => {
         return this.executeCommand(
-            new AdminUserGlobalSignOutCommand({
-                UserPoolId: POOL_ID,
-                Username: username
+            new GlobalSignOutCommand({
+                AccessToken: accessToken
             }),
-            "AdminUserGlobalSignOutCommand"
+            "GlobalSignOutCommand"
         );
     }
 }

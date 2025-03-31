@@ -9,7 +9,7 @@ export interface IUser {
 
 export interface IUserInfo {
     email: string;
-    password: string;
-    role: string;
-    userGroup?: string;
+    // password: string;
+    // role: string;
+    // userGroup?: string;
 }

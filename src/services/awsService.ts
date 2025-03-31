@@ -1,4 +1,4 @@
-import { createLogger, CustomLogger } from "../helpers/lib/logger";
+import { createLogger, CustomLogger } from "../helpers/lib/logger.js";
 
 const logger: CustomLogger = createLogger({ fileName: "AwsService" });
 
@@ -20,7 +20,7 @@ export class AwsService {
         logger.debug(
             "Executing %s command: %s with input: %s",
             this.serviceName,
-            cmd,
+            cmdName,
             JSON.stringify(cmd.input)
         )
         return this.client.send(cmd);

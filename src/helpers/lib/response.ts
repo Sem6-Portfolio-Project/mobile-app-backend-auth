@@ -1,8 +1,8 @@
 import { EJSON } from 'bson';
 import { Response } from 'express';
-import { createLogger, CustomLogger } from "./logger";
-import { IResponse, IResponseBody } from "../../types/response";
-import { ERROR_MESSAGES } from "../../constants";
+import { createLogger, CustomLogger } from "./logger.js";
+import { IResponse, IResponseBody } from "../../types/response.js";
+import { ERROR_MESSAGES } from "../../constants.js";
 
 
 const logger: CustomLogger = createLogger({ fileName: "Response"});
