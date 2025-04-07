@@ -5,7 +5,8 @@ import {
 import { createLogger, CustomLogger } from "../helpers/lib/logger.js";
 import {
     AdminAddUserToGroupCommand,
-    AdminAddUserToGroupCommandOutput, AdminUserGlobalSignOutCommand, AdminUserGlobalSignOutCommandOutput,
+    AdminAddUserToGroupCommandOutput,
+    AdminUserGlobalSignOutCommandOutput,
     CognitoIdentityProviderClient,
     ConfirmForgotPasswordCommand,
     ConfirmForgotPasswordCommandOutput,
