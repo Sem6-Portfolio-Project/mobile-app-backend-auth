@@ -1,10 +1,11 @@
 
 //TODO: add base urls
-export const BASE_URLS : string[] = ['http://localhost:8081','http://*'];
+export const BASE_URLS : string[] = [
+  'http://localhost:8081', 'http://*'];
 
 //TODO: add cognito client & pool ids
-export const CLIENT_ID: string = 'vu9mnne94bjq2aeg2448s7486';
-export const POOL_ID: string = 'us-east-1_sNqa2KpJp';
+export const CLIENT_ID: string = process.env.COGNITO_APP_CLIENT_ID as string;
+export const POOL_ID: string = process.env.COGNITO_USER_POOL_ID as string;
 
 export const ERROR_MESSAGES = {
     UNEXPECTED_PROCESSING_ERROR: 'Unexpected processing error'
