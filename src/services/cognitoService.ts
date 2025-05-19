@@ -20,7 +20,7 @@ import {
     SignUpCommand,
     SignUpCommandOutput,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { AwsService } from "./awsService.js";
+import { AwsService } from "./aws-service.js";
 import { CLIENT_ID,POOL_ID } from "../constants.js";
 import { AuthenticationResultType } from "aws-sdk/clients/cognitoidentityserviceprovider.js";
 

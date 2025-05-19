@@ -17,5 +17,4 @@ export const USER_POOL_ATTRIBUTES = Object.freeze({
     USER_ROLE: "custom:role",
     USER_GROUP: "cognito:groups",
 })
-
-
+export const NOTIFICATION_QUEUE = process.env.NOTIFICATION_QUEUE;
