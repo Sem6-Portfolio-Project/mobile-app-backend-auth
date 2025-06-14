@@ -176,6 +176,10 @@ export class CognitoService extends AwsService{
         return AuthenticationResult;
     };
 
+    /**
+     * logout from the all devices
+     * @param accessToken 
+     */
     logout = async (
         accessToken: string
     ): Promise<AdminUserGlobalSignOutCommandOutput> => {
@@ -186,4 +190,26 @@ export class CognitoService extends AwsService{
             "GlobalSignOutCommand"
         );
     }
+
+    /**
+     * refresh the session 
+     * @param refreshToken 
+     */
+    getTokensFromRefreshToken = async (
+        refreshToken: string,
+    ): Promise<AuthenticationResultType>  => {
+        return this.executeCommand(
+            new InitiateAuthCommand({
+                 AuthFlow: "REFRESH_TOKEN_AUTH",
+                 ClientId: CLIENT_ID,
+                 AuthParameters: {
+                    REFRESH_TOKEN: refreshToken,
+                 }
+            }),
+            "InitiateAuthCommand"
+        )
+
+    }
+
+
 }

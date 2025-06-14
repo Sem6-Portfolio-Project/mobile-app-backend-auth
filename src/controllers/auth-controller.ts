@@ -318,8 +318,43 @@ export class AuthController {
 
     }
 
-    //TODO
-    refreshSession = async (): Promise<void> => {}
+    /**
+     * refresh the session
+     * @param req 
+     * @param res 
+     */
+    refreshSession = async (req: Request, res: Response): Promise<void> => {
+        const refreshToken = req.query.token as string;
+        logger.debug('refreshing the session.')
+        try {
+            const data = await this.cognitoService.getTokensFromRefreshToken(refreshToken);
+            if(data) {
+                successResponse({
+                    res,
+                    body: {
+                        data: data,
+                        message: 'Successfully got the tokens'
+                    }
+                })
+            } else {
+                failureResponse({
+                    res,
+                    body: {
+                        message: 'Not found tokens.'
+                    }
+                })
+            }
+
+        } catch (e) {
+            logger.error('Error while getting the token from refresh tokens. error: %s', e);
+            failureResponse({
+                res,
+                body: {
+                    message: 'Error while getting the token from refresh tokens.'
+                }
+            })
+        }
+    }
 
     getAttributes = (
         userInfo: IUserInfo

@@ -27,6 +27,6 @@ export class AuthRouter extends BaseRouter {
 
         this.router.post("/forgot-password-confirm", this.authController.confirmForgotPassword);
 
-        this.router.post("/refresh-session", this.authController.refreshSession);
+        this.router.get("/refresh-session", this.authController.refreshSession);
     }
 }
